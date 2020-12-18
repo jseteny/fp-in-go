@@ -21,7 +21,7 @@ func Compose(outer, inner Lens) Lens {
 }
 
 func Example_lens() {
-	
+
 	type Street struct {
 		name   string
 		number int
@@ -32,7 +32,6 @@ func Example_lens() {
 		city    string
 		street  Street
 	}
-
 
 	street := Street{"Mura utca", 8}
 	address := Address{"Magyarország", "Szeged", street}
@@ -45,11 +44,11 @@ func Example_lens() {
 		},
 	}
 	streetNumberLens := struct { // Type Safe Lens
-		l   Lens
-		Get func(s Street) int
-		Set func(s Street, number int) Street
+		internal Lens
+		Get      func(s Street) int
+		Set      func(s Street, number int) Street
 	}{
-		l: _streetNumberLens,
+		internal: _streetNumberLens,
 		Get: func(s Street) int {
 			return _streetNumberLens.Get(s).(int)
 		},
@@ -65,9 +64,10 @@ func Example_lens() {
 			return Address{address.(Address).country, address.(Address).city, street.(Street)}
 		},
 	}
-	fmt.Println(streetNumberLens.Get(street))
-	fmt.Println(_addressStreetLens.Get(address))
-
 	_addressStreetNumberLens := Compose(_addressStreetLens, _streetNumberLens)
-	fmt.Println(_addressStreetNumberLens.Set(address, 77))
+
+	fmt.Printf("\nstreetNumberLens.Get(street) == %v\n", streetNumberLens.Get(street))
+	fmt.Printf("_addressStreetLens.Get(address) == %v\n", _addressStreetLens.Get(address))
+	fmt.Printf("Composed Get(address) == %v\n",_addressStreetNumberLens.Get(address))
+	fmt.Printf("Composed Set(address, 77)) == %v\n",_addressStreetNumberLens.Set(address, 77))
 }
